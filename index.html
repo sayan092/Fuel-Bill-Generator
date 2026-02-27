@@ -19,7 +19,8 @@
         .btn-container { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; position: sticky; bottom: 0; background: white; padding: 10px 0; border-top: 1px solid #eee; }
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-print { background: #ff6600; color: white; }
-        .btn-manual { background: #003399; color: white; font-size: 12px; }
+        /* Style for the new Download Button */
+        .btn-download { background: #28a745; color: white; font-size: 14px; }
 
         /* Receipt Layout */
         #receipt-wrap { background: white; padding: 15px; border-radius: 4px; box-shadow: 0 0 10px rgba(0,0,0,0.1); height: fit-content; }
@@ -36,19 +37,21 @@
         .flex-row { display: flex; justify-content: space-between; }
         .spacer { height: 16px; }
         
-        /* THE FIX FOR HEADERS/PATH IN PRINT */
+        /* THE FIX FOR PDF DOWNLOAD / PRINTING */
         @media print { 
             @page { 
-                margin: 0; /* This removes the header/footer path information */
+                margin: 0; /* Removes browser headers/footers */
+                size: auto;
             }
             body { 
                 background: white; 
                 padding: 0; 
                 margin: 0;
+                display: block; /* Centers receipt for print */
             } 
             .no-print { display: none !important; } 
-            #receipt-wrap { box-shadow: none; padding: 0; } 
-            #receipt { margin: 0 auto; }
+            #receipt-wrap { box-shadow: none; padding: 0; border: none; margin: 0 auto; } 
+            #receipt { margin: 0 auto; padding: 40px; }
         }
     </style>
 </head>
@@ -76,8 +79,8 @@
     <div class="input-group"><label>Printed On (Override)</label><input type="datetime-local" id="inPrintTime" oninput="update()"></div>
 
     <div class="btn-container">
+        <button class="btn-download" onclick="downloadPDF()">DOWNLOAD PDF</button>
         <button class="btn-print" onclick="window.print()">PRINT BILL</button>
-        <button class="btn-manual" onclick="showShortcut()">TAKE SCREENSHOT MANUALLY</button>
     </div>
 </div>
 
@@ -143,7 +146,6 @@
     const fipNo = "0" + (Math.floor(Math.random() * 3) + 1);
     const nozNo = "0" + (Math.floor(Math.random() * 5) + 1);
 
-    // Initial Setup
     const now = new Date();
     document.getElementById('inDate').value = now.toISOString().split('T')[0];
     document.getElementById('inTime').value = now.toTimeString().slice(0,5);
@@ -178,17 +180,21 @@
         document.getElementById('outPrintTime').innerText = pt.toLocaleString('en-GB');
     }
 
-    function showShortcut() {
-        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-        if (isMac) {
-            alert("To capture on Mac:\nPress Cmd + Shift + 4\nThen select the receipt area.");
-        } else {
-            alert("To capture on Windows:\nPress Win + Shift + S\nThen select the receipt area.");
-        }
+    // New Function to handle the PDF Download
+    function downloadPDF() {
+        // Change the page title temporarily (this becomes the PDF filename)
+        const originalTitle = document.title;
+        const stationName = document.getElementById('inStation').value || "Fuel_Bill";
+        document.title = stationName + "_Receipt";
+        
+        // Trigger print
+        window.print();
+        
+        // Restore original title
+        document.title = originalTitle;
     }
 
     window.onload = update;
 </script>
 </body>
 </html>
-
