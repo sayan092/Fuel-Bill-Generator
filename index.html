@@ -11,7 +11,6 @@
         /* Control Panel */
         .input-panel { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 420px; height: 92vh; overflow-y: auto; }
         h2 { margin: 15px 0 8px 0; color: #003399; font-size: 0.9rem; border-bottom: 2px solid #ff6600; padding-bottom: 5px; text-transform: uppercase; }
-        h2:first-child { margin-top: 0; }
         .input-group { margin-bottom: 10px; }
         label { display: block; font-size: 10px; font-weight: bold; margin-bottom: 3px; color: #444; text-transform: uppercase; }
         input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
@@ -19,39 +18,51 @@
         .btn-container { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; position: sticky; bottom: 0; background: white; padding: 10px 0; border-top: 1px solid #eee; }
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-print { background: #ff6600; color: white; }
-        /* Style for the new Download Button */
-        .btn-download { background: #28a745; color: white; font-size: 14px; }
 
-        /* Receipt Layout */
-        #receipt-wrap { background: white; padding: 15px; border-radius: 4px; box-shadow: 0 0 10px rgba(0,0,0,0.1); height: fit-content; }
-        #receipt { 
-            width: 320px; background: #fff; padding: 30px 25px; 
-            font-family: 'Courier New', Courier, monospace; 
-            color: #000; font-size: 12px; line-height: 1.4;
+        /* Realistic Receipt Wrapper */
+        #receipt-wrap { 
+            position: relative; 
+            background: #fdfdf5; 
+            padding: 0; 
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.2); 
+            height: fit-content;
+            overflow: hidden;
+            clip-path: polygon(
+                0% 1%, 5% 0%, 10% 1%, 15% 0%, 20% 1%, 25% 0%, 30% 1%, 35% 0%, 40% 1%, 45% 0%, 50% 1%, 55% 0%, 60% 1%, 65% 0%, 70% 1%, 75% 0%, 80% 1%, 85% 0%, 90% 1%, 95% 0%, 100% 1%, 
+                100% 99%, 95% 100%, 90% 99%, 85% 100%, 80% 99%, 75% 100%, 70% 99%, 65% 100%, 60% 99%, 55% 100%, 50% 99%, 45% 100%, 40% 99%, 35% 100%, 30% 99%, 25% 100%, 20% 99%, 15% 100%, 10% 99%, 5% 100%, 0% 99%
+            );
         }
+
+        .crumple-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            opacity: 0.45;
+            mix-blend-mode: multiply;
+            background-image: url('https://www.transparenttextures.com/patterns/crinkled-paper-texture.png');
+            z-index: 10;
+        }
+
+        #receipt { 
+            width: 300px; padding: 35px 25px; 
+            font-family: 'Courier New', Courier, monospace; 
+            color: #111; font-size: 12px; line-height: 1.4;
+            position: relative; z-index: 1;
+        }
+
         .logo-container { text-align: center; margin-bottom: 15px; }
-        .logo-img { width: 110px; height: auto; display: block; margin: 0 auto; }
+        .logo-img { width: 100px; height: auto; display: block; margin: 0 auto; }
         .center { text-align: center; }
         .bold { font-weight: bold; }
-        .dashed { border-bottom: 1px dashed #000; margin: 10px 0; }
+        .dashed { border-bottom: 1px dashed #666; margin: 10px 0; }
         .flex-row { display: flex; justify-content: space-between; }
-        .spacer { height: 16px; }
+        .spacer { height: 14px; }
         
-        /* THE FIX FOR PDF DOWNLOAD / PRINTING */
         @media print { 
-            @page { 
-                margin: 0; /* Removes browser headers/footers */
-                size: auto;
-            }
-            body { 
-                background: white; 
-                padding: 0; 
-                margin: 0;
-                display: block; /* Centers receipt for print */
-            } 
+            @page { margin: 0; size: auto; }
+            body { background: white; padding: 0; } 
             .no-print { display: none !important; } 
-            #receipt-wrap { box-shadow: none; padding: 0; border: none; margin: 0 auto; } 
-            #receipt { margin: 0 auto; padding: 40px; }
+            #receipt-wrap { box-shadow: none; margin: 0 auto; } 
         }
     </style>
 </head>
@@ -59,8 +70,8 @@
 
 <div class="input-panel no-print">
     <h2>Station & Contact</h2>
-    <div class="input-group"><label>Petrol Pump Name</label><input type="text" id="inStation" value="Enter Name" oninput="update()"></div>
-    <div class="input-group"><label>Telephone No</label><input type="text" id="inTel" value="Enter number" oninput="update()"></div>
+    <div class="input-group"><label>Petrol Pump Name</label><input type="text" id="inStation" value="INDIANOIL DEALER" oninput="update()"></div>
+    <div class="input-group"><label>Telephone No</label><input type="text" id="inTel" value="033-24556677" oninput="update()"></div>
     
     <h2>Transaction Detail</h2>
     <div class="input-group"><label>Rate (Rs/L)</label><input type="number" id="inRate" value="105.41" step="0.01" oninput="update()"></div>
@@ -73,25 +84,25 @@
     <div class="input-group"><label>Transaction Time</label><input type="time" id="inTime" oninput="update()"></div>
 
     <h2>Statutory Info</h2>
-    <div class="input-group"><label>CST No</label><input type="text" id="inCST" oninput="update()"></div>
-    <div class="input-group"><label>LST No</label><input type="text" id="inLST" oninput="update()"></div>
-    <div class="input-group"><label>VAT No</label><input type="text" id="inVAT" oninput="update()"></div>
+    <div class="input-group"><label>CST No</label><input type="text" id="inCST" placeholder="Enter CST" oninput="update()"></div>
+    <div class="input-group"><label>LST No</label><input type="text" id="inLST" placeholder="Enter LST" oninput="update()"></div>
+    <div class="input-group"><label>VAT No</label><input type="text" id="inVAT" placeholder="Enter VAT" oninput="update()"></div>
     <div class="input-group"><label>Printed On (Override)</label><input type="datetime-local" id="inPrintTime" oninput="update()"></div>
 
     <div class="btn-container">
-        <button class="btn-download" onclick="downloadPDF()">DOWNLOAD PDF</button>
-        <button class="btn-print" onclick="window.print()">PRINT BILL</button>
+        <button class="btn-print" onclick="window.print()">PRINT / SAVE PDF</button>
     </div>
 </div>
 
 <div id="receipt-wrap">
+    <div class="crumple-overlay"></div>
     <div id="receipt">
         <div class="logo-container">
             <img src="image_7ebec1.png" id="billLogo" alt="Indian Oil" class="logo-img">
             <div class="bold" style="margin-top: 8px; font-size: 14px;">Indian Oil</div>
         </div>
 
-        <div class="center bold" id="outStation" style="margin-bottom: 5px;"></div>
+        <div class="center bold" id="outStation"></div>
         <div class="center" style="margin-bottom: 10px;">Tel. No.: <span id="outTel"></span></div>
 
         <div class="flex-row"><span>Invoice No:</span><span id="outInv"></span></div>
@@ -100,24 +111,20 @@
         <div class="flex-row"><span>Nozzle No:</span><span id="outNoz"></span></div>
         
         <div class="spacer"></div>
-        
-        <div class="flex-row"><span>Preset Type:</span><span>Amount</span></div>
+        <div class="flex-row"><span>Product:</span><span class="bold">XP95</span></div>
         <div class="flex-row"><span>Rate(Rs/L):</span><span id="outRate"></span></div>
         <div class="flex-row"><span>Volume(L):</span><span id="outVol"></span></div>
         <div class="flex-row bold"><span>Amount(Rs):</span><span id="outAmt"></span></div>
         
-        <div class="spacer"></div>
-        
+        <div class="dashed"></div>
         <div class="flex-row"><span>Vehicle No:</span><span id="outVeh"></span></div>
         <div class="flex-row"><span>Mobile No:</span><span id="outMob"></span></div>
         
         <div class="spacer"></div>
-        
         <div class="flex-row"><span>Date:</span><span id="outDate"></span></div>
         <div class="flex-row"><span>Time:</span><span id="outTime"></span></div>
         
         <div class="spacer"></div>
-
         <div class="flex-row"><span>CST No:</span><span id="outCST"></span></div>
         <div class="flex-row"><span>LST No:</span><span id="outLST"></span></div>
         <div class="flex-row"><span>VAT No:</span><span id="outVAT"></span></div>
@@ -125,7 +132,6 @@
         <div class="spacer"></div>
         <div class="flex-row" style="font-size: 10px;"><span>Printed on:</span><span id="outPrintTime"></span></div>
 
-        <div class="spacer"></div>
         <div class="center">
             <div class="dashed"></div>
             <small>SAVE FUEL YAANI SAVE MONEY!!</small><br>
@@ -141,11 +147,12 @@
         return res;
     }
 
-    const invNo = genRandom(16);
+    const invNo = genRandom(14);
     const fccID = genRandom(9);
     const fipNo = "0" + (Math.floor(Math.random() * 3) + 1);
     const nozNo = "0" + (Math.floor(Math.random() * 5) + 1);
 
+    // Default dates
     const now = new Date();
     document.getElementById('inDate').value = now.toISOString().split('T')[0];
     document.getElementById('inTime').value = now.toTimeString().slice(0,5);
@@ -178,20 +185,6 @@
         
         const pt = new Date(document.getElementById('inPrintTime').value);
         document.getElementById('outPrintTime').innerText = pt.toLocaleString('en-GB');
-    }
-
-    // New Function to handle the PDF Download
-    function downloadPDF() {
-        // Change the page title temporarily (this becomes the PDF filename)
-        const originalTitle = document.title;
-        const stationName = document.getElementById('inStation').value || "Fuel_Bill";
-        document.title = stationName + "_Receipt";
-        
-        // Trigger print
-        window.print();
-        
-        // Restore original title
-        document.title = originalTitle;
     }
 
     window.onload = update;
