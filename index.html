@@ -19,12 +19,12 @@
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-print { background: #ff6600; color: white; }
 
-        /* Realistic Receipt Wrapper */
+        /* Updated Realistic Receipt Wrapper */
         #receipt-wrap { 
             position: relative; 
-            background: #fdfdf5; 
+            background: #f9f9f9; /* Changed from yellowish #fdfdf5 to whitish #f9f9f9 */
             padding: 0; 
-            box-shadow: 5px 5px 15px rgba(0,0,0,0.2); 
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.15); 
             height: fit-content;
             overflow: hidden;
             clip-path: polygon(
@@ -37,7 +37,7 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
-            opacity: 0.45;
+            opacity: 0.3; /* Reduced opacity slightly for a cleaner white look */
             mix-blend-mode: multiply;
             background-image: url('https://www.transparenttextures.com/patterns/crinkled-paper-texture.png');
             z-index: 10;
@@ -62,7 +62,7 @@
             @page { margin: 0; size: auto; }
             body { background: white; padding: 0; } 
             .no-print { display: none !important; } 
-            #receipt-wrap { box-shadow: none; margin: 0 auto; } 
+            #receipt-wrap { box-shadow: none; margin: 0 auto; background: white; } 
         }
     </style>
 </head>
