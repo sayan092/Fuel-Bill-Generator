@@ -13,16 +13,16 @@
         h2 { margin: 15px 0 8px 0; color: #003399; font-size: 0.9rem; border-bottom: 2px solid #ff6600; padding-bottom: 5px; text-transform: uppercase; }
         .input-group { margin-bottom: 10px; }
         label { display: block; font-size: 10px; font-weight: bold; margin-bottom: 3px; color: #444; text-transform: uppercase; }
-        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
         
         .btn-container { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; position: sticky; bottom: 0; background: white; padding: 10px 0; border-top: 1px solid #eee; }
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-print { background: #ff6600; color: white; }
 
-        /* Updated Realistic Receipt Wrapper */
+        /* Realistic Receipt Wrapper */
         #receipt-wrap { 
             position: relative; 
-            background: #f9f9f9; /* Changed from yellowish #fdfdf5 to whitish #f9f9f9 */
+            background: #f9f9f9; 
             padding: 0; 
             box-shadow: 5px 5px 15px rgba(0,0,0,0.15); 
             height: fit-content;
@@ -37,7 +37,7 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
-            opacity: 0.3; /* Reduced opacity slightly for a cleaner white look */
+            opacity: 0.3;
             mix-blend-mode: multiply;
             background-image: url('https://www.transparenttextures.com/patterns/crinkled-paper-texture.png');
             z-index: 10;
@@ -74,20 +74,29 @@
     <div class="input-group"><label>Telephone No</label><input type="text" id="inTel" value="033-24556677" oninput="update()"></div>
     
     <h2>Transaction Detail</h2>
+    <div class="input-group">
+        <label>Product Type</label>
+        <select id="inProduct" onchange="update()">
+            <option value="XP95">XP95</option>
+            <option value="PETROL">PETROL</option>
+            <option value="DIESEL">DIESEL</option>
+        </select>
+    </div>
     <div class="input-group"><label>Rate (Rs/L)</label><input type="number" id="inRate" value="105.41" step="0.01" oninput="update()"></div>
     <div class="input-group"><label>Volume (L)</label><input type="number" id="inVol" value="23.811" step="0.001" oninput="update()"></div>
     <div class="input-group"><label>Vehicle No</label><input type="text" id="inVeh" placeholder="WB02AX1234" oninput="update()"></div>
     <div class="input-group"><label>Mobile No</label><input type="text" id="inMob" placeholder="9876543210" oninput="update()"></div>
     
     <h2>Date & Time</h2>
-    <div class="input-group"><label>Transaction Date</label><input type="date" id="inDate" oninput="update()"></div>
-    <div class="input-group"><label>Transaction Time</label><input type="time" id="inTime" oninput="update()"></div>
+    <div class="input-group"><label>Transaction Date</label><input type="date" id="inDate" oninput="autoSyncTime()"></div>
+    <div class="input-group"><label>Transaction Time</label><input type="time" id="inTime" oninput="autoSyncTime()"></div>
 
     <h2>Statutory Info</h2>
     <div class="input-group"><label>CST No</label><input type="text" id="inCST" placeholder="Enter CST" oninput="update()"></div>
     <div class="input-group"><label>LST No</label><input type="text" id="inLST" placeholder="Enter LST" oninput="update()"></div>
     <div class="input-group"><label>VAT No</label><input type="text" id="inVAT" placeholder="Enter VAT" oninput="update()"></div>
-    <div class="input-group"><label>Printed On (Override)</label><input type="datetime-local" id="inPrintTime" oninput="update()"></div>
+    
+    <input type="hidden" id="inPrintTime">
 
     <div class="btn-container">
         <button class="btn-print" onclick="window.print()">PRINT / SAVE PDF</button>
@@ -111,7 +120,7 @@
         <div class="flex-row"><span>Nozzle No:</span><span id="outNoz"></span></div>
         
         <div class="spacer"></div>
-        <div class="flex-row"><span>Product:</span><span class="bold">XP95</span></div>
+        <div class="flex-row"><span>Product:</span><span class="bold" id="outProduct">XP95</span></div>
         <div class="flex-row"><span>Rate(Rs/L):</span><span id="outRate"></span></div>
         <div class="flex-row"><span>Volume(L):</span><span id="outVol"></span></div>
         <div class="flex-row bold"><span>Amount(Rs):</span><span id="outAmt"></span></div>
@@ -152,17 +161,35 @@
     const fipNo = "0" + (Math.floor(Math.random() * 3) + 1);
     const nozNo = "0" + (Math.floor(Math.random() * 5) + 1);
 
-    // Default dates
-    const now = new Date();
-    document.getElementById('inDate').value = now.toISOString().split('T')[0];
-    document.getElementById('inTime').value = now.toTimeString().slice(0,5);
-    const localISO = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0,16);
-    document.getElementById('inPrintTime').value = localISO;
+    window.onload = function() {
+        const now = new Date();
+        document.getElementById('inDate').value = now.toISOString().split('T')[0];
+        document.getElementById('inTime').value = now.toTimeString().slice(0,5);
+        autoSyncTime();
+    };
+
+    function autoSyncTime() {
+        const transDate = document.getElementById('inDate').value;
+        const transTime = document.getElementById('inTime').value;
+        
+        if (transDate && transTime) {
+            let dt = new Date(transDate + "T" + transTime);
+            const randomExtraMinutes = Math.floor(Math.random() * 3) + 1;
+            dt.setMinutes(dt.getMinutes() + randomExtraMinutes);
+            
+            const offset = dt.getTimezoneOffset() * 60000;
+            const localISOTime = new Date(dt.getTime() - offset).toISOString().slice(0, 16);
+            
+            document.getElementById('inPrintTime').value = localISOTime;
+        }
+        update();
+    }
 
     function update() {
         const rate = parseFloat(document.getElementById('inRate').value) || 0;
         const vol = parseFloat(document.getElementById('inVol').value) || 0;
         
+        document.getElementById('outProduct').innerText = document.getElementById('inProduct').value;
         document.getElementById('outStation').innerText = document.getElementById('inStation').value.toUpperCase();
         document.getElementById('outTel').innerText = document.getElementById('inTel').value;
         document.getElementById('outInv').innerText = invNo;
@@ -183,12 +210,10 @@
         document.getElementById('outLST').innerText = document.getElementById('inLST').value || "-----------";
         document.getElementById('outVAT').innerText = document.getElementById('inVAT').value || "-----------";
         
-        const pt = new Date(document.getElementById('inPrintTime').value);
-        document.getElementById('outPrintTime').innerText = pt.toLocaleString('en-GB');
+        const ptStr = document.getElementById('inPrintTime').value;
+        const pt = new Date(ptStr);
+        document.getElementById('outPrintTime').innerText = !isNaN(pt) ? pt.toLocaleString('en-GB') : "--/--/----, --:--:--";
     }
-
-    window.onload = update;
 </script>
 </body>
 </html>
-
