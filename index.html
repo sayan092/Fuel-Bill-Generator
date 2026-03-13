@@ -18,6 +18,7 @@
         .btn-container { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; position: sticky; bottom: 0; background: white; padding: 10px 0; border-top: 1px solid #eee; }
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-print { background: #ff6600; color: white; }
+        .btn-regen { background: #003399; color: white; font-size: 11px; }
 
         /* Realistic Receipt Wrapper */
         #receipt-wrap { 
@@ -99,6 +100,7 @@
     <input type="hidden" id="inPrintTime">
 
     <div class="btn-container">
+        <button class="btn-regen" onclick="regenerateIDs()">REGENERATE INVOICE/FCC/FIP</button>
         <button class="btn-print" onclick="window.print()">PRINT / SAVE PDF</button>
     </div>
 </div>
@@ -150,21 +152,29 @@
 </div>
 
 <script>
+    // Variables stored outside to allow regeneration
+    let invNo, fccID, fipNo, nozNo;
+
     function genRandom(digits) {
         let res = '';
         for(let i=0; i<digits; i++) res += Math.floor(Math.random() * 10);
         return res;
     }
 
-    const invNo = genRandom(14);
-    const fccID = genRandom(9);
-    const fipNo = "0" + (Math.floor(Math.random() * 3) + 1);
-    const nozNo = "0" + (Math.floor(Math.random() * 5) + 1);
+    // Function to only refresh the random IDs
+    function regenerateIDs() {
+        invNo = genRandom(14);
+        fccID = genRandom(9);
+        fipNo = "0" + (Math.floor(Math.random() * 3) + 1);
+        nozNo = "0" + (Math.floor(Math.random() * 5) + 1);
+        update(); // Refresh display with new IDs
+    }
 
     window.onload = function() {
         const now = new Date();
         document.getElementById('inDate').value = now.toISOString().split('T')[0];
         document.getElementById('inTime').value = now.toTimeString().slice(0,5);
+        regenerateIDs(); // Sets initial random IDs
         autoSyncTime();
     };
 
@@ -192,10 +202,13 @@
         document.getElementById('outProduct').innerText = document.getElementById('inProduct').value;
         document.getElementById('outStation').innerText = document.getElementById('inStation').value.toUpperCase();
         document.getElementById('outTel').innerText = document.getElementById('inTel').value;
+        
+        // Use the globally stored IDs
         document.getElementById('outInv').innerText = invNo;
         document.getElementById('outFCC').innerText = fccID;
         document.getElementById('outFIP').innerText = fipNo;
         document.getElementById('outNoz').innerText = nozNo;
+        
         document.getElementById('outRate').innerText = rate.toFixed(2);
         document.getElementById('outVol').innerText = vol.toFixed(3);
         document.getElementById('outAmt').innerText = (rate * vol).toFixed(2);
