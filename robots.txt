@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://sayan092.github.io/Fuel-Bill-Generator/sitemap.xml
