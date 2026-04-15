@@ -1,0 +1,22 @@
+-- ============================================================
+-- ROLLBACK SCRIPT: USER_FILE_ARCHIVE_CONFIG
+-- Reverts DDL, Seed Inserts, and Script Parameters
+-- ============================================================
+
+-- 1. Remove the PowerShell script parameter entry
+DELETE FROM USER_SCRIPT_PARAMETERS 
+WHERE context = 'FILESHARE_ARCHIVE' 
+  AND sub_context = 'FILE_ARCHIVE' 
+  AND name = 'PS_SCRIPT_PATH';
+
+-- 2. Revoke permissions (Optional, as dropping the table removes these)
+-- REVOKE SELECT, INSERT, UPDATE, DELETE ON USER_FILE_ARCHIVE_CONFIG FROM olf_user; 
+-- REVOKE SELECT ON USER_FILE_ARCHIVE_CONFIG FROM olf_readonly; 
+
+-- 3. Drop the configuration table
+-- This removes the table structure, all 15 seed records, and associated constraints [cite: 1, 6-14]
+IF OBJECT_ID('USER_FILE_ARCHIVE_CONFIG', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE USER_FILE_ARCHIVE_CONFIG;
+END
+GO

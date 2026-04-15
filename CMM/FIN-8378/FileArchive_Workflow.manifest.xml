@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<tns:olfConfigDataManifest source="CMM" version="1.0" xmlns:tns="urn:cmm-olf-com:ConfigMigrationMgr">
+  <tns:originDetails>
+    <tns:codeVersion>
+      <tns:major>22</tns:major>
+      <tns:minor>0</tns:minor>
+      <tns:revision>20023</tns:revision>
+      <tns:build>1068</tns:build>
+      <tns:branchTag>V22_0_11112022MG_02072023</tns:branchTag>
+      <tns:date>Feb  7 2023</tns:date>
+      <tns:time>19:26:51</tns:time>
+    </tns:codeVersion>
+    <tns:database>PROJECT9</tns:database>
+    <tns:databaseServer>fin104hddb1</tns:databaseServer>
+    <tns:user>SHA453</tns:user>
+    <tns:timestamp>20260414T145955</tns:timestamp>
+    <tns:GUID>FileArchive_Workflow</tns:GUID>
+    <tns:description>Package "FileArchive_Workflow" contains Data and Dependency information for: Task,Workflow</tns:description>
+    <tns:referenceData>
+      <tns:referenceText></tns:referenceText>
+    </tns:referenceData>
+  </tns:originDetails>
+  <tns:dataFiles>
+    <tns:fileInfo>
+      <tns:filename seqNo="4">Task.xml</tns:filename>
+      <tns:description>This xml file contains "Task" data and dependencies for selected dataitems</tns:description>
+      <tns:checksum>YW3OX9FV1QIEQ81@Q4U4S4@YP2EW1$RQ</tns:checksum>
+      <tns:dataBlock olfType="Task" version="1.0.0.">
+        <tns:dataItem id="/AVS/Site/FileShare_Archive" copyType="Full" status="Included" seqNo="1">
+          <tns:dependencies></tns:dependencies>
+        </tns:dataItem>
+      </tns:dataBlock>
+    </tns:fileInfo>
+    <tns:fileInfo>
+      <tns:filename seqNo="15">Workflow.xml</tns:filename>
+      <tns:description>This xml file contains "Workflow" data and dependencies for selected dataitems</tns:description>
+      <tns:checksum>##THH7T6U2385@89161#TJT3FGHH$85!</tns:checksum>
+      <tns:dataBlock olfType="Workflow" version="1.0.0.">
+        <tns:dataItem id="Fileshare_Archive" copyType="Full" status="Included" seqNo="1">
+          <tns:dependencies></tns:dependencies>
+        </tns:dataItem>
+      </tns:dataBlock>
+    </tns:fileInfo>
+  </tns:dataFiles>
+</tns:olfConfigDataManifest>

@@ -1,0 +1,85 @@
+-- ============================================================
+-- DDL: USER_FILE_ARCHIVE_CONFIG
+-- Findur/Endur file share cleanup & SharePoint archive config
+-- ============================================================
+
+CREATE TABLE USER_FILE_ARCHIVE_CONFIG (
+    RULE_ID            INT           NOT NULL,
+    RULE_NAME          VARCHAR(100)  NOT NULL,
+    FROM_PATH          VARCHAR(500)  NOT NULL,
+    TO_PATH            VARCHAR(500)  NOT NULL,
+    ACTION_TYPE        VARCHAR(20)   NOT NULL,
+    FILE_PATTERN       VARCHAR(100)  NULL,
+    FILE_AGE_DAYS      INT           NOT NULL DEFAULT 120,
+    RECURSIVE          CHAR(1)       NOT NULL DEFAULT 'Y',
+    DELETE_EMPTY_DIRS  CHAR(1)       NOT NULL DEFAULT 'N',
+    BATCH_SIZE         INT           NULL,
+    NO_OF_BATCH_RUN    INT           NOT NULL DEFAULT 1,
+    PARALLEL_DEGREE    INT           NOT NULL DEFAULT 0,
+    ACTIVE             CHAR(1)       NOT NULL DEFAULT 'Y',
+    LAST_RUN_DT        DATETIME      NULL,
+    COMMENTS           VARCHAR(500)  NULL,
+    CONSTRAINT PK_FILE_ARCHIVE_CONFIG PRIMARY KEY (RULE_ID),
+    CONSTRAINT CHK_UFAC_ACTIVE CHECK (ACTIVE IN ('Y','N')),
+    CONSTRAINT CHK_UFAC_RECURSIVE CHECK (RECURSIVE IN ('Y','N')),
+    CONSTRAINT CHK_UFAC_DELETE_EMPTY_DIRS CHECK (DELETE_EMPTY_DIRS IN ('Y','N')),
+    CONSTRAINT CHK_UFAC_ACTION_TYPE CHECK (ACTION_TYPE IN ('MOVE','COMPRESS_MOVE','DELETE_EMPTY_DIRS')),
+    CONSTRAINT CHK_UFAC_FILE_AGE_DAYS CHECK (FILE_AGE_DAYS >= 0),
+    CONSTRAINT CHK_UFAC_BATCH_SIZE CHECK (BATCH_SIZE IS NULL OR BATCH_SIZE >= 0),
+    CONSTRAINT CHK_UFAC_NO_OF_BATCH_RUN CHECK (NO_OF_BATCH_RUN >= 0),
+    CONSTRAINT CHK_UFAC_PARALLEL_DEGREE CHECK (PARALLEL_DEGREE >= 0)
+);
+
+-- ============================================================
+-- SEED INSERTS
+-- ============================================================
+
+INSERT INTO USER_FILE_ARCHIVE_CONFIG
+(
+    RULE_ID, RULE_NAME, FROM_PATH, TO_PATH, ACTION_TYPE, FILE_PATTERN,
+    FILE_AGE_DAYS, RECURSIVE, DELETE_EMPTY_DIRS,
+    BATCH_SIZE, NO_OF_BATCH_RUN, PARALLEL_DEGREE,
+    ACTIVE, LAST_RUN_DT, COMMENTS
+)
+VALUES
+(1,  'SWIFT_PROCESSED',       '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\data_feeds\from_Swift_processed',                       'Production/Dir_archive/Swift_Processed',                    'COMPRESS_MOVE',   '*.*',   120, 'Y', 'N', 5000, 10, 0, 'Y', NULL, 'can run off-peak, batch carefully'),
+(2,  'ERROR_LOG_JVS_GW',      '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\error_log',                                               'Production/Dir_archive/JVS_Gateway_logs',                   'COMPRESS_MOVE',   '*.log', 120, 'Y', 'N', 1000, 5,  0, 'Y', NULL, 'JVS + Gateway logs - zip by month'),
+(3,  'ERROR_LOGS_USER_SVR',   '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\error_logs',                                              'Production/Dir_archive/User_Server_logs',                   'COMPRESS_MOVE',   '*.log', 120, 'Y', 'N', 1000, 5,  0, 'Y', NULL, 'User + server logs - zip by month'),
+(4,  'BO_CONFIRMATIONS',      '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\outdir\BackOffice\Confirmations',                        'Production/Dir_archive/BO_Confirmations',                   'COMPRESS_MOVE',   '*.*',   120, 'Y', 'N', 2000, 5,  0, 'Y', NULL, 'Back office confirmations'),
+(5,  'BBG_RATES_IN',          '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\outdir\Interface\BLOOMBERG\In\Rates',                    'Production/Dir_archive/Interfaces/Bloomberg/In/Rates',      'COMPRESS_MOVE',   '*.*',   120, 'Y', 'N', 1000, 3,  0, 'Y', NULL, '~7.5k empty subdirs - source unidentified, monitor after cleanup'),
+(6,  'BBG_VALUATIONS_IN',     '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\outdir\Interface\BLOOMBERG\In\Valuations',               'Production/Dir_archive/Interfaces/Bloomberg/In/Valuations', 'COMPRESS_MOVE',   '*.*',   120, 'Y', 'N', 1000, 3,  0, 'Y', NULL, 'Same as BBG_RATES_IN'),
+(7,  'BBG_VALUATIONS_OUT',    '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\outdir\Interface\BLOOMBERG\Out\Valuations',              'Production/Dir_archive/Interfaces/Bloomberg/Out/Valuations','DELETE_EMPTY_DIRS', NULL,    0,   'Y', 'N', NULL,  3,  0, 'Y', NULL, 'No files, empty dirs only - safe purge'),
+(8,  'REPORTS_CASHPOOL',      '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\outdir\Interface\Reports',                                'Production/Dir_archive/Interfaces/Cashpool_reports',        'COMPRESS_MOVE',   '*.*',   120, 'Y', 'N', 1000, 5,  0, 'Y', NULL, 'Cashpool + intercompany data'),
+(9,  'RRCV_FX_RATES',         '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\outdir\Interface\RRCV\In\Rates',                         'Production/Dir_archive/Interfaces/RRCV',                    'COMPRESS_MOVE',   '*.*',   120, 'N', 'N', 1000, 5,  0, 'Y', NULL, 'FX rates'),
+(10, 'SAP_OUT_PROCESSED',     '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\outdir\Interface\SAP\Out\Reports\Intraday\Processed',    'Production/Dir_archive/Interfaces/SAP/Out/Processed',       'COMPRESS_MOVE',   '*.*',   120, 'N', 'N', 1000, 5,  0, 'Y', NULL, ''),
+(11, 'SAP_SAPDI_PROCESSED',   '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\outdir\Interface\SAP\Out\Reports\Intraday\SAPDI\Processed','Production/Dir_archive/Interfaces/SAP/Out/SAPDI/Processed','COMPRESS_MOVE',   '*.*',   120, 'N', 'N', 1000, 5,  0, 'Y', NULL, ''),
+(12, 'TRAX_OUT_ARCHIVE',      '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\outdir\Interface\TRAX\Out\Reference_data\Archive\Processed','Production/Dir_archive/Interfaces/Trax/Out',               'COMPRESS_MOVE',   '*.*',   120, 'N', 'N', 1000, 5,  0, 'Y', NULL, 'Folder named Archive but unzipped - move as-is'),
+(13, 'MONTHLY_IC_REPORTS',    '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\outdir\MonthlyInterCompanyReports',                       'Production/Dir_archive/Monthly_Intercompany_reports',       'COMPRESS_MOVE',   '*.*',   120, 'Y', 'N', 500,  5,  0, 'Y', NULL, 'Monthly cadence - consider batch by month'),
+(14, 'OLF_CRYSTAL_ERRLOGS',   '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\outdir\OlfCrystalViewerErrorLogs',                        'Production/Dir_archive/Crystal_logs',                       'COMPRESS_MOVE',   '*.log', 120, 'Y', 'N', 1000, 5,  0, 'Y', NULL, 'Crystal viewer error logs'),
+(15, 'OUTDIR_REPORTS',        '\\fin104hpfs1\fin104prodfile1\data\fin104_prod\outdir\reports',                                          'Production/Dir_archive/outdir_reports',                     'COMPRESS_MOVE',   '*.*',   120, 'Y', 'N', 1000, 5,  0, 'Y', NULL, 'Review stale vs live before first run');
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON USER_FILE_ARCHIVE_CONFIG TO olf_user;
+GRANT SELECT ON USER_FILE_ARCHIVE_CONFIG TO olf_readonly;
+
+-- ============================================================
+-- USER_SCRIPT_PARAMETERS ENTRY FOR POWERSHELL SCRIPT
+-- ============================================================
+
+INSERT INTO USER_SCRIPT_PARAMETERS
+(
+    context,
+    sub_context,
+    name,
+    type,
+    value,
+    Description
+)
+VALUES
+(
+    'FILESHARE_ARCHIVE',
+    'FILE_ARCHIVE',
+    'PS_SCRIPT_PATH',
+    'String',
+    '\\fin104hdfs1\fin104file1\data\connection\FileShare_Archive.ps1',
+    'PowerShell script for file archive'
+);
